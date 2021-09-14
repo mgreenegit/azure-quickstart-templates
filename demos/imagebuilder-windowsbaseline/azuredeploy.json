@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "802255667085113336"
-    }
-  },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
@@ -81,7 +74,7 @@
       "type": "string",
       "defaultValue": "Win2019_AzureWindowsBaseline_CustomImage",
       "metadata": {
-        "description": "Name of the custom iamge to create and distribute using Azure Image Builder."
+        "description": "Name of the custom image to create and distribute using Azure Image Builder."
       }
     },
     "replicationRegions": {
@@ -251,6 +244,10 @@
             "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', parameters('imageGalleryName'), parameters('imageDefinitionProperties').name)]",
             "runOutputName": "[parameters('runOutputName')]",
             "replicationRegions": "[parameters('replicationRegions')]"
+          },
+          {
+            "type": "VHD",
+            "runOutputName": "[parameters('runOutputName')]"
           }
         ]
       },

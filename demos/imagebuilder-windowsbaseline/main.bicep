@@ -31,7 +31,7 @@ param imageDefinitionProperties object = {
 @description('Name of the template to create in Azure Image Builder.')
 param imageTemplateName string = 'Win2019_AzureWindowsBaseline_Template'
 
-@description('Name of the custom iamge to create and distribute using Azure Image Builder.')
+@description('Name of the custom image to create and distribute using Azure Image Builder.')
 param runOutputName string = 'Win2019_AzureWindowsBaseline_CustomImage'
 
 @description('List the regions in Azure where you would like to replicate the custom image after it is created.')
@@ -176,6 +176,10 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
         galleryImageId: imageDefinition.id
         runOutputName: runOutputName
         replicationRegions: replicationRegions
+      }
+      {
+        type: 'VHD'
+        runOutputName: runOutputName
       }
     ]
   }
