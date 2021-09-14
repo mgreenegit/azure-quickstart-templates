@@ -34,6 +34,9 @@ param imageTemplateName string = 'Win2019_AzureWindowsBaseline_Template'
 @description('Name of the custom image to create and distribute using Azure Image Builder.')
 param runOutputName string = 'Win2019_AzureWindowsBaseline_CustomImage'
 
+@description('Name of the custom image to create and distribute using Azure Image Builder.')
+param vhdName string = 'WindowsServer2019_AzureWindowsBaseline'
+
 @description('List the regions in Azure where you would like to replicate the custom image after it is created.')
 param replicationRegions array = [
   'centralus'
@@ -179,7 +182,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
       }
       {
         type: 'VHD'
-        runOutputName: runOutputName
+        runOutputName: vhdName
       }
     ]
   }

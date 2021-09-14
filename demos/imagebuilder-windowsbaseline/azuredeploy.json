@@ -77,6 +77,13 @@
         "description": "Name of the custom image to create and distribute using Azure Image Builder."
       }
     },
+    "vhdName": {
+      "type": "string",
+      "defaultValue": "WindowsServer2019_AzureWindowsBaseline",
+      "metadata": {
+        "description": "Name of the custom image to create and distribute using Azure Image Builder."
+      }
+    },
     "replicationRegions": {
       "type": "array",
       "defaultValue": [
@@ -247,7 +254,7 @@
           },
           {
             "type": "VHD",
-            "runOutputName": "[parameters('runOutputName')]"
+            "runOutputName": "[parameters('vhdName')]"
           }
         ]
       },
