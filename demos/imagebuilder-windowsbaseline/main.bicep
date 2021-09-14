@@ -32,7 +32,7 @@ param imageDefinitionProperties object = {
 param imageTemplateName string = 'Win2019_AzureWindowsBaseline_Template'
 
 @description('Name of the custom image to create and distribute using Azure Image Builder.')
-param runOutputName string = 'Win2019_AzureWindowsBaseline_CustomImage'
+param runOutputName string = substring('Win2019_AzureBaseline_${guid(resourceGroup().id)}', 0, 31)
 
 @description('Name of the custom image to create and distribute using Azure Image Builder.')
 param vhdName string = 'WindowsServer2019_AzureWindowsBaseline'

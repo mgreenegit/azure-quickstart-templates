@@ -72,7 +72,7 @@
     },
     "runOutputName": {
       "type": "string",
-      "defaultValue": "Win2019_AzureWindowsBaseline_CustomImage",
+      "defaultValue": "[substring(format('Win2019_AzureBaseline_{0}', guid(resourceGroup().id)), 0, 31)]",
       "metadata": {
         "description": "Name of the custom image to create and distribute using Azure Image Builder."
       }
