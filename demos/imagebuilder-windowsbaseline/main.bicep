@@ -8,6 +8,9 @@ param _artifactsLocationSasToken string = ''
 @description('The Azure region where resources in the template should be deployed.')
 param location string = resourceGroup().location
 
+@description('Set this parameter to \'true\' if you would like to also build an image with the Arc enabled servers agent installed and distribute it as a VHD to blob storage.')
+param buildVHD bool = false
+
 @description('The name of the customizer script which will be executed during image build.')
 param customizerScriptName string = 'scripts/runScript.ps1'
 
@@ -187,7 +190,31 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
   }
 }
 
-resource imageTemplateArc 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
+resource imageTemplate_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'Image_Template_Build'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${templateIdentity.id}': {}
+    }
+  }
+  dependsOn: [
+    imageTemplate
+    templateRoleAssignment
+  ]
+  properties: {
+    forceUpdateTag: forceUpdateTag
+    azPowerShellVersion: '6.2'
+    scriptContent: 'Invoke-AzResourceAction -ResourceName "${imageTemplateName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2020-02-14" -Action Run -Force'
+    timeout: 'PT1H'
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+  }
+}
+
+resource imageTemplateArc 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = if (buildVHD) {
   name: imageTemplateArcName
   location: location
   identity: {
@@ -246,31 +273,7 @@ resource imageTemplateArc 'Microsoft.VirtualMachineImages/imageTemplates@2020-02
   }
 }
 
-resource imageTemplate_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'Image_Template_Build'
-  location: location
-  kind: 'AzurePowerShell'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${templateIdentity.id}': {}
-    }
-  }
-  dependsOn: [
-    imageTemplate
-    templateRoleAssignment
-  ]
-  properties: {
-    forceUpdateTag: forceUpdateTag
-    azPowerShellVersion: '6.2'
-    scriptContent: 'Invoke-AzResourceAction -ResourceName "${imageTemplateName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2020-02-14" -Action Run -Force'
-    timeout: 'PT1H'
-    cleanupPreference: 'OnSuccess'
-    retentionInterval: 'P1D'
-  }
-}
-
-resource imageTemplateArc_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource imageTemplateArc_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (buildVHD) {
   name: 'Image_TemplateArc_Build'
   location: location
   kind: 'AzurePowerShell'
