@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "802255667085113336"
+      "templateHash": "11609056840186024584"
     }
   },
   "parameters": {
@@ -108,7 +108,7 @@
   "functions": [],
   "variables": {
     "customizerScriptUri": "[uri(parameters('_artifactsLocation'), format('{0}{1}', parameters('customizerScriptName'), parameters('_artifactsLocationSasToken')))]",
-    "templateIdentityRoleAssignmentName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName')), resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', parameters('templateIdentityRoleDefinitionName')))]"
+    "templateIdentityRoleAssignmentName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName')), resourceGroup().id, '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
   },
   "resources": [
     {
@@ -118,54 +118,17 @@
       "location": "[parameters('location')]"
     },
     {
-      "type": "Microsoft.Authorization/roleDefinitions",
-      "apiVersion": "2018-07-01",
-      "name": "[parameters('templateIdentityRoleDefinitionName')]",
-      "properties": {
-        "roleName": "[parameters('templateIdentityRoleDefinitionName')]",
-        "description": "Used for AIB template and ARM deployment script that runs AIB build",
-        "type": "customRole",
-        "isCustom": true,
-        "permissions": [
-          {
-            "actions": [
-              "Microsoft.Compute/galleries/read",
-              "Microsoft.Compute/galleries/images/read",
-              "Microsoft.Compute/galleries/images/versions/read",
-              "Microsoft.Compute/galleries/images/versions/write",
-              "Microsoft.Compute/images/read",
-              "Microsoft.Compute/images/write",
-              "Microsoft.Compute/images/delete",
-              "Microsoft.Storage/storageAccounts/blobServices/containers/read",
-              "Microsoft.Storage/storageAccounts/blobServices/containers/write",
-              "Microsoft.ContainerInstance/containerGroups/read",
-              "Microsoft.ContainerInstance/containerGroups/write",
-              "Microsoft.ContainerInstance/containerGroups/start/action",
-              "Microsoft.Resources/deployments/read",
-              "Microsoft.Resources/deploymentScripts/read",
-              "Microsoft.Resources/deploymentScripts/write",
-              "Microsoft.VirtualMachineImages/imageTemplates/run/action"
-            ]
-          }
-        ],
-        "assignableScopes": [
-          "[resourceGroup().id]"
-        ]
-      }
-    },
-    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2021-04-01-preview",
       "name": "[variables('templateIdentityRoleAssignmentName')]",
       "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('templateIdentityRoleDefinitionName'))]",
+        "roleDefinitionId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))).principalId]",
         "scope": "[resourceGroup().id]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))]",
-        "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('templateIdentityRoleDefinitionName'))]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))]"
       ]
     },
     {

@@ -47,52 +47,17 @@ param replicationRegions array = [
 param forceUpdateTag string = newGuid()
 
 var customizerScriptUri = uri(_artifactsLocation, '${customizerScriptName}${_artifactsLocationSasToken}')
-var templateIdentityRoleAssignmentName = guid(templateIdentity.id, resourceGroup().id, templateIdentityRoleDefinition.id)
+var templateIdentityRoleAssignmentName = guid(templateIdentity.id, resourceGroup().id, '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
 
 resource templateIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: templateIdentityName
   location: location
 }
 
-resource templateIdentityRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-07-01' = {
-  name: templateIdentityRoleDefinitionName
-  properties: {
-    roleName: templateIdentityRoleDefinitionName
-    description: 'Used for AIB template and ARM deployment script that runs AIB build'
-    type: 'customRole'
-    isCustom: true
-    permissions: [
-      {
-        actions: [
-          'Microsoft.Compute/galleries/read'
-          'Microsoft.Compute/galleries/images/read'
-          'Microsoft.Compute/galleries/images/versions/read'
-          'Microsoft.Compute/galleries/images/versions/write'
-          'Microsoft.Compute/images/read'
-          'Microsoft.Compute/images/write'
-          'Microsoft.Compute/images/delete'
-          'Microsoft.Storage/storageAccounts/blobServices/containers/read'
-          'Microsoft.Storage/storageAccounts/blobServices/containers/write'
-          'Microsoft.ContainerInstance/containerGroups/read'
-          'Microsoft.ContainerInstance/containerGroups/write'
-          'Microsoft.ContainerInstance/containerGroups/start/action'
-          'Microsoft.Resources/deployments/read'
-          'Microsoft.Resources/deploymentScripts/read'
-          'Microsoft.Resources/deploymentScripts/write'
-          'Microsoft.VirtualMachineImages/imageTemplates/run/action'
-        ]
-      }
-    ]
-    assignableScopes: [
-      resourceGroup().id
-    ]
-  }
-}
-
 resource templateRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
   name: templateIdentityRoleAssignmentName
   properties: {
-    roleDefinitionId: templateIdentityRoleDefinition.id
+    roleDefinitionId: '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
     principalId: templateIdentity.properties.principalId
     scope: resourceGroup().id
     principalType: 'ServicePrincipal'
