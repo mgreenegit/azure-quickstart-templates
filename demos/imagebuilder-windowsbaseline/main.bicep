@@ -59,7 +59,7 @@ resource templateRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04
   properties: {
     roleDefinitionId: '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
     principalId: templateIdentity.properties.principalId
-    scope: resourceGroup().id
+    scope: subscription().id
     principalType: 'ServicePrincipal'
   }
 }
