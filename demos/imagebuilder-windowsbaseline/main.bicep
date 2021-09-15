@@ -147,7 +147,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
     }
   }
   properties: {
-    buildTimeoutInMinutes: 60
+    buildTimeoutInMinutes: 120
     vmProfile: {
       vmSize: 'Standard_D2_v3'
       osDiskSizeGB: 127
@@ -197,7 +197,7 @@ resource imageTemplateArc 'Microsoft.VirtualMachineImages/imageTemplates@2020-02
     }
   }
   properties: {
-    buildTimeoutInMinutes: 60
+    buildTimeoutInMinutes: 120
     vmProfile: {
       vmSize: 'Standard_D2_v3'
       osDiskSizeGB: 127
@@ -281,7 +281,7 @@ resource imageTemplateArc_build 'Microsoft.Resources/deploymentScripts@2020-10-0
     }
   }
   dependsOn: [
-    imageTemplate
+    imageTemplateArc
     templateRoleAssignment
     imageTemplate_build
   ]
