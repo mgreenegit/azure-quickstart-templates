@@ -31,6 +31,9 @@ param imageDefinitionProperties object = {
 @description('Name of the template to create in Azure Image Builder.')
 param imageTemplateName string = 'Win2019_AzureWindowsBaseline_Template'
 
+@description('Name of the template to create in Azure Image Builder for Arc machines.')
+param imageTemplateArcName string = 'Win2019_AzureWindowsBaseline_Arc'
+
 @description('Name of the custom image to create and distribute using Azure Image Builder.')
 param runOutputName string = substring('Win2019_AzureBaseline_${guid(resourceGroup().id)}', 0, 31)
 
@@ -180,6 +183,61 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
         runOutputName: runOutputName
         replicationRegions: replicationRegions
       }
+    ]
+  }
+}
+
+resource imageTemplateArc 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
+  name: imageTemplateArcName
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${templateIdentity.id}': {}
+    }
+  }
+  properties: {
+    buildTimeoutInMinutes: 60
+    vmProfile: {
+      vmSize: 'Standard_D2_v3'
+      osDiskSizeGB: 127
+    }
+    source: {
+      type: 'PlatformImage'
+      publisher: 'MicrosoftWindowsServer'
+      offer: 'WindowsServer'
+      sku: '2019-Datacenter'
+      version: 'latest'
+    }
+    customize: [
+      {
+        type: 'PowerShell'
+        name: 'InstallArcAgent'
+        runElevated: true
+        inline: [
+          '''
+          $ProgressPreference="SilentlyContinue"; Invoke-WebRequest -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile $Env:TEMP\AzureConnectedMachineAgent.msi
+          (Start-Process -FilePath msiexec.exe -ArgumentList @("/i", "$Env:TEMP\AzureConnectedMachineAgent.msi" ,"/l*v", "installationlog.txt", "/qn") -Wait -Passthru).ExitCode
+          '''
+        ]
+      }
+      {
+        type: 'WindowsUpdate'
+        searchCriteria: 'IsInstalled=0'
+        filters: [
+          'exclude:$_.Title -like \'*Preview*\''
+          'include:$true'
+        ]
+        updateLimit: 40
+      }
+      {
+        type: 'PowerShell'
+        name: 'AzureWindowsBaseline'
+        runElevated: true
+        scriptUri: customizerScriptUri
+      }
+    ]
+    distribute: [
       {
         type: 'VHD'
         runOutputName: vhdName
@@ -189,7 +247,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
 }
 
 resource imageTemplate_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'Image_template_build'
+  name: 'Image_Template_Build'
   location: location
   kind: 'AzurePowerShell'
   identity: {
@@ -206,6 +264,31 @@ resource imageTemplate_build 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     forceUpdateTag: forceUpdateTag
     azPowerShellVersion: '6.2'
     scriptContent: 'Invoke-AzResourceAction -ResourceName "${imageTemplateName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2020-02-14" -Action Run -Force'
+    timeout: 'PT1H'
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+  }
+}
+
+resource imageTemplateArc_build 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'Image_TemplateArc_Build'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${templateIdentity.id}': {}
+    }
+  }
+  dependsOn: [
+    imageTemplate
+    templateRoleAssignment
+    imageTemplate_build
+  ]
+  properties: {
+    forceUpdateTag: forceUpdateTag
+    azPowerShellVersion: '6.2'
+    scriptContent: 'Invoke-AzResourceAction -ResourceName "${imageTemplateArcName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2020-02-14" -Action Run -Force'
     timeout: 'PT1H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
