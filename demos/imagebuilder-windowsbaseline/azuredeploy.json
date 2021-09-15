@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "617841575912428189"
+      "templateHash": "4647501081943009194"
     }
   },
   "parameters": {
@@ -336,7 +336,7 @@
     {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
-      "name": "Image_template_build",
+      "name": "Image_Template_Build",
       "location": "[parameters('location')]",
       "kind": "AzurePowerShell",
       "identity": {
@@ -348,13 +348,40 @@
       "properties": {
         "forceUpdateTag": "[parameters('forceUpdateTag')]",
         "azPowerShellVersion": "6.2",
-        "scriptContent": "      Invoke-AzResourceAction -ResourceName \"${imageTemplateName}\" -ResourceGroupName \"${resourceGroup().name}\" -ResourceType \"Microsoft.VirtualMachineImages/imageTemplates\" -ApiVersion \"2020-02-14\" -Action Run -Force\n      Invoke-AzResourceAction -ResourceName \"${imageTemplateArcName}\" -ResourceGroupName \"${resourceGroup().name}\" -ResourceType \"Microsoft.VirtualMachineImages/imageTemplates\" -ApiVersion \"2020-02-14\" -Action Run -Force\n      ",
+        "scriptContent": "[format('Invoke-AzResourceAction -ResourceName \"{0}\" -ResourceGroupName \"{1}\" -ResourceType \"Microsoft.VirtualMachineImages/imageTemplates\" -ApiVersion \"2020-02-14\" -Action Run -Force', parameters('imageTemplateName'), resourceGroup().name)]",
         "timeout": "PT1H",
         "cleanupPreference": "OnSuccess",
         "retentionInterval": "P1D"
       },
       "dependsOn": [
         "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', variables('templateIdentityRoleAssignmentName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "Image_TemplateArc_Build",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))]": {}
+        }
+      },
+      "properties": {
+        "forceUpdateTag": "[parameters('forceUpdateTag')]",
+        "azPowerShellVersion": "6.2",
+        "scriptContent": "[format('Invoke-AzResourceAction -ResourceName \"{0}\" -ResourceGroupName \"{1}\" -ResourceType \"Microsoft.VirtualMachineImages/imageTemplates\" -ApiVersion \"2020-02-14\" -Action Run -Force', parameters('imageTemplateArcName'), resourceGroup().name)]",
+        "timeout": "PT1H",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', 'Image_Template_Build')]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('templateIdentityName'))]",
         "[resourceId('Microsoft.Authorization/roleAssignments', variables('templateIdentityRoleAssignmentName'))]"
       ]
