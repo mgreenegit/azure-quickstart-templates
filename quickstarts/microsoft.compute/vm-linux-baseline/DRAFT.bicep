@@ -1,3 +1,5 @@
+// this template is a draft, only, and not valid at this time
+
 @description('The Azure region where resources in the template should be deployed.')
 param location string
 
@@ -32,9 +34,8 @@ param vmName string
   '14.04.5-LTS'
   '16.04.0-LTS'
   '18.04-LTS'
-  '20.04-LTS'
 ])
-param ubuntuOSVersion string = '20.04-LTS'
+param ubuntuOSVersion string = '18.04-LTS'
 
 @description('Specifies the storage account type for OS and data disk.')
 @allowed([

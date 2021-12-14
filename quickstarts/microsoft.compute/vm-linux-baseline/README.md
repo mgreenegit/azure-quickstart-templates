@@ -1,4 +1,4 @@
-# Windows VM with Azure secure baseline
+# Linux VM with Azure secure baseline
 
 ![Azure Public Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/quickstarts/microsoft.compute/vm-windows-baseline/PublicLastTestDate.svg)
 ![Azure Public Test Result](https://azurequickstartsservice.blob.core.windows.net/badges/quickstarts/microsoft.compute/vm-windows-baseline/PublicDeployment.svg)
