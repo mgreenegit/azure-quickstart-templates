@@ -1,0 +1,12 @@
+{
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "QuickStart",
+  "itemDisplayName": "Linux VM with Azure security baseline.",
+  "description": "The template creates a virtual machine running Ubuntu in a new virtual network, with a public IP address. Once the machine has deployed, the guest configuration extension is installed and the Azure security baseline for Linux is applied. If the configuration of the machines drifts, you can re-apply the settings by deploying the template again.",
+  "summary": "This template deploys a Linux VM and then apply the Azure security baseline configuration to the machine.",
+  "githubUsername": "mgreenegit",
+  "dateUpdated": "2021-12-20",
+  "environments": [
+    "AzureCloud"
+  ]
+}
